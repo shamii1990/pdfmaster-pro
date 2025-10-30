@@ -2,65 +2,17 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const { PDFDocument } = require('pdf-lib');
 const path = require('path');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.static('.'));
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
   abortOnLimit: true
 }));
-
-// ========== SERVE STATIC PAGES ========== //
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/merge-pdf', (req, res) => res.sendFile(path.join(__dirname, 'merge-pdf.html')));
-app.get('/split-pdf', (req, res) => res.sendFile(path.join(__dirname, 'split-pdf.html')));
-app.get('/compress-pdf', (req, res) => res.sendFile(path.join(__dirname, 'compress-pdf.html')));
-app.get('/pdf-to-text', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-text.html')));
-app.get('/images-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'images-to-pdf.html')));
-
-// Serve all other tool pages (demo versions)
-app.get('/pdf-to-word', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-word.html')));
-app.get('/word-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'word-to-pdf.html')));
-app.get('/pdf-to-excel', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-excel.html')));
-app.get('/excel-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'excel-to-pdf.html')));
-app.get('/pdf-to-powerpoint', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-powerpoint.html')));
-app.get('/powerpoint-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'powerpoint-to-pdf.html')));
-app.get('/pdf-to-images', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-images.html')));
-app.get('/pdf-to-jpg', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-jpg.html')));
-app.get('/pdf-to-png', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-png.html')));
-app.get('/jpg-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'jpg-to-pdf.html')));
-app.get('/png-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'png-to-pdf.html')));
-app.get('/images-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'images-to-pdf.html')));
-app.get('/pdf-to-pdfa', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-pdfa.html')));
-app.get('/organize-pdf', (req, res) => res.sendFile(path.join(__dirname, 'organize-pdf.html')));
-app.get('/rotate-pdf', (req, res) => res.sendFile(path.join(__dirname, 'rotate-pdf.html')));
-app.get('/watermark-pdf', (req, res) => res.sendFile(path.join(__dirname, 'watermark-pdf.html')));
-app.get('/number-pages', (req, res) => res.sendFile(path.join(__dirname, 'number-pages.html')));
-app.get('/repair-pdf', (req, res) => res.sendFile(path.join(__dirname, 'repair-pdf.html')));
-app.get('/reduce-size', (req, res) => res.sendFile(path.join(__dirname, 'reduce-size.html')));
-app.get('/resize-pdf', (req, res) => res.sendFile(path.join(__dirname, 'resize-pdf.html')));
-app.get('/change-margin', (req, res) => res.sendFile(path.join(__dirname, 'change-margin.html')));
-app.get('/flatten-pdf', (req, res) => res.sendFile(path.join(__dirname, 'flatten-pdf.html')));
-app.get('/extract-images', (req, res) => res.sendFile(path.join(__dirname, 'extract-images.html')));
-app.get('/pdf-to-html', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-html.html')));
-app.get('/html-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'html-to-pdf.html')));
-app.get('/text-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'text-to-pdf.html')));
-app.get('/protect-pdf', (req, res) => res.sendFile(path.join(__dirname, 'protect-pdf.html')));
-app.get('/unlock-pdf', (req, res) => res.sendFile(path.join(__dirname, 'unlock-pdf.html')));
-app.get('/add-password', (req, res) => res.sendFile(path.join(__dirname, 'add-password.html')));
-app.get('/remove-password', (req, res) => res.sendFile(path.join(__dirname, 'remove-password.html')));
-app.get('/sign-pdf', (req, res) => res.sendFile(path.join(__dirname, 'sign-pdf.html')));
-app.get('/annotate-pdf', (req, res) => res.sendFile(path.join(__dirname, 'annotate-pdf.html')));
-app.get('/fill-form', (req, res) => res.sendFile(path.join(__dirname, 'fill-form.html')));
-app.get('/compare-pdf', (req, res) => res.sendFile(path.join(__dirname, 'compare-pdf.html')));
-app.get('/ocr-pdf', (req, res) => res.sendFile(path.join(__dirname, 'ocr-pdf.html')));
-app.get('/compress-images', (req, res) => res.sendFile(path.join(__dirname, 'compress-images.html')));
-app.get('/split-by-size', (req, res) => res.sendFile(path.join(__dirname, 'split-by-size.html')));
-app.get('/extract-pages', (req, res) => res.sendFile(path.join(__dirname, 'extract-pages.html')));
-app.get('/insert-pages', (req, res) => res.sendFile(path.join(__dirname, 'insert-pages.html')));
-app.get('/delete-pages', (req, res) => res.sendFile(path.join(__dirname, 'delete-pages.html')));
 
 // ========== REAL WORKING PDF TOOLS ========== //
 
@@ -231,6 +183,56 @@ app.post('/api/*', (req, res) => {
     demo: true
   });
 });
+
+// ========== SERVE STATIC PAGES ========== //
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/merge-pdf', (req, res) => res.sendFile(path.join(__dirname, 'merge-pdf.html')));
+app.get('/split-pdf', (req, res) => res.sendFile(path.join(__dirname, 'split-pdf.html')));
+app.get('/compress-pdf', (req, res) => res.sendFile(path.join(__dirname, 'compress-pdf.html')));
+app.get('/pdf-to-text', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-text.html')));
+app.get('/images-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'images-to-pdf.html')));
+
+// Serve all other tool pages (demo versions)
+app.get('/pdf-to-word', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-word.html')));
+app.get('/word-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'word-to-pdf.html')));
+app.get('/pdf-to-excel', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-excel.html')));
+app.get('/excel-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'excel-to-pdf.html')));
+app.get('/pdf-to-powerpoint', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-powerpoint.html')));
+app.get('/powerpoint-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'powerpoint-to-pdf.html')));
+app.get('/pdf-to-images', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-images.html')));
+app.get('/pdf-to-jpg', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-jpg.html')));
+app.get('/pdf-to-png', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-png.html')));
+app.get('/jpg-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'jpg-to-pdf.html')));
+app.get('/png-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'png-to-pdf.html')));
+app.get('/images-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'images-to-pdf.html')));
+app.get('/pdf-to-pdfa', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-pdfa.html')));
+app.get('/organize-pdf', (req, res) => res.sendFile(path.join(__dirname, 'organize-pdf.html')));
+app.get('/rotate-pdf', (req, res) => res.sendFile(path.join(__dirname, 'rotate-pdf.html')));
+app.get('/watermark-pdf', (req, res) => res.sendFile(path.join(__dirname, 'watermark-pdf.html')));
+app.get('/number-pages', (req, res) => res.sendFile(path.join(__dirname, 'number-pages.html')));
+app.get('/repair-pdf', (req, res) => res.sendFile(path.join(__dirname, 'repair-pdf.html')));
+app.get('/reduce-size', (req, res) => res.sendFile(path.join(__dirname, 'reduce-size.html')));
+app.get('/resize-pdf', (req, res) => res.sendFile(path.join(__dirname, 'resize-pdf.html')));
+app.get('/change-margin', (req, res) => res.sendFile(path.join(__dirname, 'change-margin.html')));
+app.get('/flatten-pdf', (req, res) => res.sendFile(path.join(__dirname, 'flatten-pdf.html')));
+app.get('/extract-images', (req, res) => res.sendFile(path.join(__dirname, 'extract-images.html')));
+app.get('/pdf-to-html', (req, res) => res.sendFile(path.join(__dirname, 'pdf-to-html.html')));
+app.get('/html-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'html-to-pdf.html')));
+app.get('/text-to-pdf', (req, res) => res.sendFile(path.join(__dirname, 'text-to-pdf.html')));
+app.get('/protect-pdf', (req, res) => res.sendFile(path.join(__dirname, 'protect-pdf.html')));
+app.get('/unlock-pdf', (req, res) => res.sendFile(path.join(__dirname, 'unlock-pdf.html')));
+app.get('/add-password', (req, res) => res.sendFile(path.join(__dirname, 'add-password.html')));
+app.get('/remove-password', (req, res) => res.sendFile(path.join(__dirname, 'remove-password.html')));
+app.get('/sign-pdf', (req, res) => res.sendFile(path.join(__dirname, 'sign-pdf.html')));
+app.get('/annotate-pdf', (req, res) => res.sendFile(path.join(__dirname, 'annotate-pdf.html')));
+app.get('/fill-form', (req, res) => res.sendFile(path.join(__dirname, 'fill-form.html')));
+app.get('/compare-pdf', (req, res) => res.sendFile(path.join(__dirname, 'compare-pdf.html')));
+app.get('/ocr-pdf', (req, res) => res.sendFile(path.join(__dirname, 'ocr-pdf.html')));
+app.get('/compress-images', (req, res) => res.sendFile(path.join(__dirname, 'compress-images.html')));
+app.get('/split-by-size', (req, res) => res.sendFile(path.join(__dirname, 'split-by-size.html')));
+app.get('/extract-pages', (req, res) => res.sendFile(path.join(__dirname, 'extract-pages.html')));
+app.get('/insert-pages', (req, res) => res.sendFile(path.join(__dirname, 'insert-pages.html')));
+app.get('/delete-pages', (req, res) => res.sendFile(path.join(__dirname, 'delete-pages.html')));
 
 // ========== ERROR HANDLING ========== //
 
