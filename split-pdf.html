@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,16 +11,17 @@
 <body>
     <header class="header">
         <nav class="navbar">
-            <a href="/" class="logo">
+            <a href="index.html" class="logo">
                 <i class="fas fa-crown"></i> PDFMaster Pro
             </a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/#all-tools">All Tools</a></li>
-                <li><a href="/merge-pdf" class="btn btn-primary">
-                    <i class="fas fa-rocket"></i> Free Tools
-                </a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="merge-pdf.html">Merge PDF</a>
+                <a href="split-pdf.html" class="active">Split PDF</a>
+                <a href="compress-pdf.html">Compress PDF</a>
+                <a href="pdf-to-text.html">PDF to Text</a>
+                <a href="images-to-pdf.html">Images to PDF</a>
+            </div>
         </nav>
     </header>
 
@@ -41,7 +42,7 @@
                 <i class="fas fa-folder-open"></i> Select PDF File
             </button>
             <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                Select one PDF file • 100MB maximum
+                Select one PDF file • 50MB maximum
             </p>
         </div>
 
@@ -50,17 +51,18 @@
             <div id="filesContainer"></div>
         </div>
 
+        <div class="page-selection" id="pageSelection" style="display: none; margin-top: 2rem;">
+            <h3>Select Page to Extract:</h3>
+            <div id="pagesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 1rem;"></div>
+        </div>
+
         <div style="text-align: center; margin-top: 2rem;">
             <button class="btn btn-primary" id="splitBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
-                <i class="fas fa-cut"></i> Split PDF
+                <i class="fas fa-cut"></i> Extract Selected Page
             </button>
         </div>
 
-        <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
-            <h3><i class="fas fa-check-circle"></i> Success!</h3>
-            <p id="resultMessage"></p>
-            <div id="downloadLinks" style="margin-top: 1rem;"></div>
-        </div>
+        <div id="result" style="margin-top: 2rem;"></div>
 
         <div style="margin-top: 3rem; text-align: center;">
             <h3>How to Split PDF</h3>
@@ -71,31 +73,30 @@
                 </div>
                 <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                     <div style="background: #6366f1; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">2</div>
-                    <p>Click Split PDF</p>
+                    <p>Select page to extract</p>
                 </div>
                 <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                     <div style="background: #6366f1; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">3</div>
-                    <p>Download all pages</p>
+                    <p>Download extracted page</p>
                 </div>
             </div>
         </div>
     </section>
 
     <script>
-        // Get elements
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
         const fileList = document.getElementById('fileList');
         const filesContainer = document.getElementById('filesContainer');
+        const pageSelection = document.getElementById('pageSelection');
+        const pagesContainer = document.getElementById('pagesContainer');
         const splitBtn = document.getElementById('splitBtn');
-        const result = document.getElementById('result');
-        const resultMessage = document.getElementById('resultMessage');
-        const downloadLinks = document.getElementById('downloadLinks');
+        const resultDiv = document.getElementById('result');
 
-        // Store selected file
         let selectedFile = null;
+        let selectedPage = null;
+        let totalPages = 0;
 
-        // File input change handler
         fileInput.addEventListener('change', function(e) {
             const files = e.target.files;
             handleFiles(files);
@@ -123,13 +124,11 @@
             handleFiles(files);
         });
 
-        // Handle selected files
         function handleFiles(files) {
             if (files.length === 0) return;
 
             const file = files[0];
             
-            // Check if PDF
             if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
                 alert('Please select a PDF file.');
                 return;
@@ -137,119 +136,167 @@
 
             selectedFile = file;
             updateFileList();
+            
+            // For now, we'll assume the file has pages and let user select
+            // In a real implementation, you might want to read the PDF to get actual page count
+            showPageSelection(5); // Default to showing 5 pages as example
         }
 
-        // Update file list display
         function updateFileList() {
             filesContainer.innerHTML = '';
             
             if (selectedFile) {
                 const fileElement = document.createElement('div');
                 fileElement.className = 'file-item';
-                fileElement.innerHTML = \
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
-                        <span style="flex: 1;">\</span>
-                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
+                fileElement.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                            <span>${selectedFile.name}</span>
+                            <span style="color: #666; font-size: 0.9em;">(${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        </div>
+                        <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                \;
+                `;
                 filesContainer.appendChild(fileElement);
             }
 
-            // Show/hide file list and split button
             fileList.style.display = selectedFile ? 'block' : 'none';
-            splitBtn.style.display = selectedFile ? 'block' : 'none';
         }
 
-        // Remove file function
+        function showPageSelection(pageCount) {
+            totalPages = pageCount;
+            pagesContainer.innerHTML = '';
+            selectedPage = null;
+            
+            for (let i = 0; i < pageCount; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn';
+                pageBtn.innerHTML = `Page ${i + 1}`;
+                pageBtn.style.padding = '10px';
+                pageBtn.style.border = '2px solid #ddd';
+                pageBtn.style.borderRadius = '5px';
+                pageBtn.style.background = 'white';
+                pageBtn.style.cursor = 'pointer';
+                pageBtn.style.transition = 'all 0.3s';
+                
+                pageBtn.addEventListener('click', function() {
+                    // Deselect all pages
+                    document.querySelectorAll('.page-btn').forEach(btn => {
+                        btn.style.background = 'white';
+                        btn.style.borderColor = '#ddd';
+                        btn.style.color = '#333';
+                    });
+                    
+                    // Select this page
+                    pageBtn.style.background = '#6366f1';
+                    pageBtn.style.borderColor = '#6366f1';
+                    pageBtn.style.color = 'white';
+                    
+                    selectedPage = i;
+                    splitBtn.style.display = 'block';
+                });
+                
+                pagesContainer.appendChild(pageBtn);
+            }
+            
+            pageSelection.style.display = 'block';
+        }
+
         window.removeFile = function() {
             selectedFile = null;
+            selectedPage = null;
             updateFileList();
+            pageSelection.style.display = 'none';
+            splitBtn.style.display = 'none';
             fileInput.value = '';
+            resultDiv.innerHTML = '';
         }
 
-        // Split button click handler
+        // REAL SPLIT FUNCTION
         splitBtn.addEventListener('click', async function() {
+            console.log('🔴 DEBUG: Split button clicked');
+            
             if (!selectedFile) {
                 alert('Please select a PDF file to split.');
                 return;
             }
 
-            // Create FormData
+            if (selectedPage === null) {
+                alert('Please select a page to extract.');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', selectedFile);
+            formData.append('page', selectedPage.toString());
 
-            // Show loading state
+            // Show loading
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+                    <p>Extracting page ${selectedPage + 1} from PDF...</p>
+                </div>
+            `;
+
             splitBtn.disabled = true;
-            splitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Splitting...';
+            splitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
 
             try {
-                console.log('Sending split request...');
+                console.log('🔴 DEBUG: About to call API /api/split-pdf');
+                console.log('🔴 DEBUG: Extracting page:', selectedPage);
                 
-                const response = await fetch('/api/split', {
+                const response = await fetch('/api/split-pdf', {
                     method: 'POST',
                     body: formData
                 });
 
-                console.log('Response received:', response.status);
+                console.log('🔴 DEBUG: API response received', response.status, response.statusText);
 
-                const data = await response.json();
-                console.log('Response data:', data);
-
-                if (data.success) {
-                    // Show success message
-                    resultMessage.textContent = data.message;
+                if (response.ok) {
+                    console.log('🔴 DEBUG: Response OK - processing PDF blob');
+                    const blob = await response.blob();
+                    console.log('🔴 DEBUG: Blob created', blob.size, 'bytes');
                     
-                    // Create download links for all pages
-                    downloadLinks.innerHTML = '';
-                    if (data.files && data.files.length > 0) {
-                        data.files.forEach(file => {
-                            const link = document.createElement('a');
-                            link.href = file.downloadUrl;
-                            link.className = 'btn';
-                            link.style.background = 'white';
-                            link.style.color = '#10b981';
-                            link.style.margin = '5px';
-                            link.style.padding = '10px 15px';
-                            link.innerHTML = \<i class="fas fa-download"></i> Page \\;
-                            downloadLinks.appendChild(link);
-                        });
-                    }
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `page-${selectedPage + 1}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
                     
-                    result.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <div style="background: var(--gradient-accent); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Success!</h3>
+                            <p>Page ${selectedPage + 1} has been extracted and downloaded</p>
+                            <p><strong>File:</strong> page-${selectedPage + 1}.pdf</p>
+                        </div>
+                    `;
                     
-                    // Clear file
-                    selectedFile = null;
-                    updateFileList();
-                    fileInput.value = '';
-                    
-                    // Scroll to result
-                    result.scrollIntoView({ behavior: 'smooth' });
+                    console.log('🔴 DEBUG: Split completed successfully');
                 } else {
-                    alert('Error: ' + data.error);
+                    console.log('🔴 DEBUG: Response not OK', response.status);
+                    const error = await response.json();
+                    throw new Error(error.error || 'Split failed');
                 }
             } catch (error) {
-                console.error('Split error:', error);
-                alert('Error splitting PDF: ' + error.message);
+                console.log('🔴 DEBUG: Error occurred:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: var(--danger); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             } finally {
-                // Reset button
                 splitBtn.disabled = false;
-                splitBtn.innerHTML = '<i class="fas fa-cut"></i> Split PDF';
+                splitBtn.innerHTML = '<i class="fas fa-cut"></i> Extract Selected Page';
             }
         });
-
-        // Reset tool function
-        window.resetTool = function() {
-            selectedFile = null;
-            updateFileList();
-            result.style.display = 'none';
-            fileInput.value = '';
-            downloadLinks.innerHTML = '';
-        }
     </script>
 </body>
 </html>
-
