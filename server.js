@@ -1,6 +1,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { PDFDocument, rgb } = require('pdf-lib');
+const sharp = require('sharp');
 const path = require('path');
 const cors = require('cors');
 const app = express();
@@ -143,7 +144,7 @@ app.post('/api/pdf-to-text', async (req, res) => {
   }
 });
 
-// 5. IMAGES TO PDF - REAL WORKING
+// 5. IMAGES TO PDF - REAL WORKING WITH ACTUAL IMAGES
 app.post('/api/images-to-pdf', async (req, res) => {
   try {
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -162,28 +163,110 @@ app.post('/api/images-to-pdf', async (req, res) => {
           return res.status(400).json({ error: `File ${file.name} is not an image` });
         }
 
-        // For now, we'll create a placeholder page for each image
-        // In a full implementation, you'd use sharp or other image libraries to embed images
-        const page = pdfDoc.addPage([612, 792]); // Letter size (8.5x11 inches)
+        console.log(`Processing image: ${file.name}`);
+
+        // Convert image to JPEG buffer for consistent handling
+        let imageBuffer;
+        try {
+          if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
+            imageBuffer = file.data;
+          } else {
+            // Convert other formats to JPEG
+            imageBuffer = await sharp(file.data)
+              .jpeg({ quality: 80 })
+              .toBuffer();
+          }
+        } catch (sharpError) {
+          console.log('Sharp conversion failed, using original image:', sharpError.message);
+          imageBuffer = file.data;
+        }
+
+        // Embed the image in PDF
+        let image;
+        try {
+          image = await pdfDoc.embedJpg(imageBuffer);
+        } catch (jpgError) {
+          try {
+            // Try PNG if JPEG embedding fails
+            const pngBuffer = await sharp(file.data).png().toBuffer();
+            image = await pdfDoc.embedPng(pngBuffer);
+          } catch (pngError) {
+            console.log('Both JPEG and PNG embedding failed, using fallback');
+            // Fallback: create a page with text only
+            const page = pdfDoc.addPage([612, 792]);
+            page.drawText(`Image: ${file.name} (Could not embed image)`, {
+              x: 50,
+              y: 750,
+              size: 12,
+            });
+            continue;
+          }
+        }
+
+        // Get image dimensions and scale to fit page
+        const imageDims = image.scale(1);
+        const pageWidth = 612; // Letter width
+        const pageHeight = 792; // Letter height
         
-        // Add some text to the page indicating the image
-        page.drawText(`Image: ${file.name}`, {
+        // Calculate scaling to fit image on page with margins
+        const margin = 50;
+        const maxWidth = pageWidth - (2 * margin);
+        const maxHeight = pageHeight - (2 * margin);
+        
+        let width = imageDims.width;
+        let height = imageDims.height;
+        
+        // Scale down if too large
+        if (width > maxWidth || height > maxHeight) {
+          const scale = Math.min(maxWidth / width, maxHeight / height);
+          width = width * scale;
+          height = height * scale;
+        }
+        
+        // Center the image on the page
+        const x = (pageWidth - width) / 2;
+        const y = (pageHeight - height) / 2;
+
+        // Create page and draw image
+        const page = pdfDoc.addPage([pageWidth, pageHeight]);
+        page.drawImage(image, {
+          x,
+          y,
+          width,
+          height,
+        });
+
+        // Add filename at bottom
+        page.drawText(file.name, {
+          x: 50,
+          y: 30,
+          size: 10,
+          color: rgb(0.5, 0.5, 0.5),
+        });
+
+        console.log(`Successfully embedded image: ${file.name}`);
+
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+        // Create a fallback page with error message
+        const page = pdfDoc.addPage([612, 792]);
+        page.drawText(`Error processing: ${file.name}`, {
           x: 50,
           y: 750,
           size: 12,
+          color: rgb(1, 0, 0),
         });
-        
-        page.drawText('This image has been converted to PDF', {
+        page.drawText(error.message, {
           x: 50,
           y: 730,
           size: 10,
           color: rgb(0.5, 0.5, 0.5),
         });
-
-      } catch (error) {
-        console.error(`Error processing file ${file.name}:`, error);
-        return res.status(400).json({ error: `Error processing ${file.name}: ${error.message}` });
       }
+    }
+
+    if (pdfDoc.getPageCount() === 0) {
+      return res.status(400).json({ error: 'No images could be processed' });
     }
 
     const pdfBytes = await pdfDoc.save();
