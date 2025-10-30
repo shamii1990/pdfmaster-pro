@@ -92,31 +92,47 @@
 
         let selectedFiles = [];
 
+        // Debug: Check if elements are found
+        console.log('🔴 DEBUG: Elements loaded:', {
+            fileInput: !!fileInput,
+            uploadArea: !!uploadArea,
+            fileList: !!fileList,
+            convertBtn: !!convertBtn
+        });
+
         fileInput.addEventListener('change', handleFileSelect);
         
         // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = '#6366f1';
+            uploadArea.style.backgroundColor = '#f8fafc';
         });
 
         uploadArea.addEventListener('dragleave', () => {
             uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = 'white';
         });
 
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = 'white';
+            console.log('🔴 DEBUG: Files dropped:', e.dataTransfer.files);
             handleFileSelect({ target: { files: e.dataTransfer.files } });
         });
 
         function handleFileSelect(e) {
+            console.log('🔴 DEBUG: handleFileSelect called', e.target.files);
+            
             const files = Array.from(e.target.files).filter(file => 
                 file.type.startsWith('image/') || 
                 ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].some(ext => 
                     file.name.toLowerCase().endsWith(ext)
                 )
             );
+
+            console.log('🔴 DEBUG: Filtered files:', files);
 
             if (files.length === 0) {
                 alert('Please select image files only (JPG, PNG, GIF, BMP, WebP).');
@@ -128,6 +144,8 @@
         }
 
         function updateFileList() {
+            console.log('🔴 DEBUG: updateFileList called with', selectedFiles.length, 'files');
+            
             filesContainer.innerHTML = '';
             
             selectedFiles.forEach((file, index) => {
@@ -148,11 +166,17 @@
                 filesContainer.appendChild(fileElement);
             });
 
-            fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
-            convertBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+            const shouldShowFileList = selectedFiles.length > 0;
+            const shouldShowConvertBtn = selectedFiles.length > 0;
+            
+            console.log('🔴 DEBUG: Updating visibility - files:', shouldShowFileList, 'button:', shouldShowConvertBtn);
+            
+            fileList.style.display = shouldShowFileList ? 'block' : 'none';
+            convertBtn.style.display = shouldShowConvertBtn ? 'block' : 'none';
         }
 
         window.removeFile = function(index) {
+            console.log('🔴 DEBUG: Removing file at index', index);
             selectedFiles.splice(index, 1);
             updateFileList();
         }
@@ -167,7 +191,10 @@
             }
 
             const formData = new FormData();
-            selectedFiles.forEach(file => formData.append('files', file));
+            selectedFiles.forEach(file => {
+                console.log('🔴 DEBUG: Appending file to formData:', file.name);
+                formData.append('files', file);
+            });
 
             // Show loading
             resultDiv.innerHTML = `
@@ -245,6 +272,14 @@
                 convertBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Convert to PDF';
             }
         });
+
+        // Test function to manually trigger file selection
+        window.testFileSelection = function() {
+            console.log('🔴 DEBUG: Manual test - selectedFiles:', selectedFiles);
+            console.log('🔴 DEBUG: fileInput value:', fileInput.value);
+            console.log('🔴 DEBUG: fileList display:', fileList.style.display);
+            console.log('🔴 DEBUG: convertBtn display:', convertBtn.style.display);
+        }
     </script>
 </body>
 </html>
