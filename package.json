@@ -1,7 +1,7 @@
 {
   "name": "pdfmaster-pro",
   "version": "1.0.0",
-  "description": "PDFMaster Pro - 44 PDF Tools with 5 Real Working Tools",
+  "description": "PDFMaster Pro - 44 PDF Tools with 6 Real Working Tools",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,15 +11,21 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
     "pdf-lib": "^1.17.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "sharp": "^0.32.0"
   },
   "keywords": [
     "pdf",
     "merge",
     "split",
     "compress",
-    "tools"
+    "tools",
+    "jpg-to-pdf",
+    "image-to-pdf"
   ],
   "author": "PDFMaster Pro",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }
