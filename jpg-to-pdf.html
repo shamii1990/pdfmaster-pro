@@ -1,62 +1,83 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JPG to PDF - PDFMaster Pro</title>
     <meta name="description" content="Convert JPG images to PDF. 100% free online tool.">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
         <nav class="navbar">
-            <a href="/" class="logo">
+            <a href="index.html" class="logo">
                 <i class="fas fa-crown"></i> PDFMaster Pro
             </a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/#all-tools">All Tools</a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="merge-pdf.html">Merge PDF</a>
+                <a href="split-pdf.html">Split PDF</a>
+                <a href="compress-pdf.html">Compress PDF</a>
+                <a href="pdf-to-text.html">PDF to Text</a>
+                <a href="images-to-pdf.html">Images to PDF</a>
+            </div>
         </nav>
     </header>
 
     <section class="tool-hero">
         <div class="tool-hero-content">
             <h1><i class="fas fa-file-pdf"></i> JPG to PDF</h1>
-            <p>Convert JPG images to PDF</p>
+            <p>Convert JPG images to PDF documents</p>
         </div>
     </section>
 
     <section class="tool-container">
-        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-            <div class="upload-area" id="uploadArea">
-                <i class="fas fa-file-pdf" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <h3>Select Your Files</h3>
-                <p>Choose files to process with JPG to PDF</p>
-                <input type="file" id="fileInput" style="display: none;">
-                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
-                    <i class="fas fa-folder-open"></i> Choose Files
-                </button>
-            </div>
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-file-pdf"></i>
+            <h3>Select JPG Images to Convert</h3>
+            <p>Choose multiple JPG images to convert to a PDF document</p>
+            <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
+                <i class="fas fa-folder-open"></i> Select Images
+            </button>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                Select JPG, PNG, GIF, BMP, or WebP images • 50MB maximum
+            </p>
+        </div>
 
-            <div id="fileList" style="display: none; margin-top: 2rem;">
-                <h3>Selected Files:</h3>
-                <div id="filesContainer"></div>
-            </div>
+        <div id="fileList" style="display: none; margin-top: 2rem;">
+            <h3>Selected Images:</h3>
+            <div id="filesContainer"></div>
+        </div>
 
-            <div style="text-align: center; margin-top: 2rem;">
-                <button class="btn btn-primary" id="processBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
-                    <i class="fas fa-magic"></i> Process Files
-                </button>
-            </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-primary" id="convertBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
+                <i class="fas fa-file-pdf"></i> Convert to PDF
+            </button>
+        </div>
 
-            <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
-                <h3><i class="fas fa-check-circle"></i> Success!</h3>
-                <p id="resultMessage"></p>
-                <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; margin-top: 1rem;">
-                    <i class="fas fa-download"></i> Download Result
-                </a>
+        <div id="result" style="margin-top: 2rem;"></div>
+
+        <div style="margin-top: 3rem; text-align: center;">
+            <h3>Supported Image Formats</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-file-image" style="color: #e74c3c; font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>JPG/JPEG</p>
+                </div>
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-file-image" style="color: #3498db; font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>PNG</p>
+                </div>
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-file-image" style="color: #9b59b6; font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>GIF</p>
+                </div>
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-file-image" style="color: #2ecc71; font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>WebP</p>
+                </div>
             </div>
         </div>
     </section>
@@ -66,99 +87,164 @@
         const uploadArea = document.getElementById('uploadArea');
         const fileList = document.getElementById('fileList');
         const filesContainer = document.getElementById('filesContainer');
-        const processBtn = document.getElementById('processBtn');
-        const result = document.getElementById('result');
-        const resultMessage = document.getElementById('resultMessage');
-        const downloadLink = document.getElementById('downloadLink');
+        const convertBtn = document.getElementById('convertBtn');
+        const resultDiv = document.getElementById('result');
 
         let selectedFiles = [];
 
-        fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            handleFiles(files);
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#6366f1';
         });
 
-        function handleFiles(files) {
-            selectedFiles = Array.from(files);
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            handleFileSelect({ target: { files: e.dataTransfer.files } });
+        });
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files).filter(file => 
+                file.type.startsWith('image/') || 
+                ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].some(ext => 
+                    file.name.toLowerCase().endsWith(ext)
+                )
+            );
+
+            if (files.length === 0) {
+                alert('Please select image files only (JPG, PNG, GIF, BMP, WebP).');
+                return;
+            }
+
+            selectedFiles = files;
             updateFileList();
         }
 
         function updateFileList() {
             filesContainer.innerHTML = '';
+            
             selectedFiles.forEach((file, index) => {
                 const fileElement = document.createElement('div');
                 fileElement.className = 'file-item';
-                fileElement.innerHTML = \
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; margin: 5px 0;">
-                        <i class="fas fa-file" style="color: #667eea;"></i>
-                        <span style="flex: 1;">\</span>
-                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
-                        <button onclick="removeFile(\)" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                fileElement.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-image" style="color: #e74c3c;"></i>
+                            <span>${file.name}</span>
+                            <span style="color: #666; font-size: 0.9em;">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        </div>
+                        <button onclick="removeFile(${index})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                \;
+                `;
                 filesContainer.appendChild(fileElement);
             });
 
             fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
-            processBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+            convertBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
         }
 
-        function removeFile(index) {
+        window.removeFile = function(index) {
             selectedFiles.splice(index, 1);
             updateFileList();
         }
 
-        processBtn.addEventListener('click', async function() {
+        // REAL JPG TO PDF FUNCTION
+        convertBtn.addEventListener('click', async function() {
+            console.log('🔴 DEBUG: Convert to PDF button clicked');
+            
             if (selectedFiles.length === 0) {
-                alert('Please select files to process.');
+                alert('Please select image files to convert.');
                 return;
             }
 
             const formData = new FormData();
-            selectedFiles.forEach(file => {
-                formData.append('files', file);
-            });
+            selectedFiles.forEach(file => formData.append('files', file));
 
-            processBtn.disabled = true;
-            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            // Show loading
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+                    <p>Converting ${selectedFiles.length} images to PDF...</p>
+                    <p style="font-size: 0.9em; color: #666;">Processing images and creating document</p>
+                </div>
+            `;
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
 
             try {
-                const response = await fetch('/api/jpg-to-pdf', {
+                console.log('🔴 DEBUG: About to call API /api/images-to-pdf');
+                console.log('🔴 DEBUG: Converting', selectedFiles.length, 'images');
+                
+                const response = await fetch('/api/images-to-pdf', {
                     method: 'POST',
                     body: formData
                 });
 
-                const data = await response.json();
+                console.log('🔴 DEBUG: API response received', response.status, response.statusText);
 
-                if (data.success) {
-                    resultMessage.textContent = data.message;
-                    downloadLink.href = data.downloadUrl;
-                    result.style.display = 'block';
+                if (response.ok) {
+                    console.log('🔴 DEBUG: Response OK - processing PDF blob');
+                    const blob = await response.blob();
+                    console.log('🔴 DEBUG: PDF blob created', blob.size, 'bytes');
                     
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'images-converted.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    resultDiv.innerHTML = `
+                        <div style="background: var(--gradient-accent); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Success!</h3>
+                            <p>${selectedFiles.length} images have been converted to PDF and downloaded</p>
+                            <p><strong>File:</strong> images-converted.pdf</p>
+                            <p style="margin-top: 1rem; font-size: 0.9em;">
+                                <i class="fas fa-info-circle"></i> Each image was added as a separate page in the PDF
+                            </p>
+                        </div>
+                    `;
+                    
+                    console.log('🔴 DEBUG: JPG to PDF conversion completed successfully');
+                    
+                    // Reset form
                     selectedFiles = [];
                     updateFileList();
                     fileInput.value = '';
-                    
-                    result.scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    alert('Error: ' + data.error);
+                    console.log('🔴 DEBUG: Response not OK', response.status);
+                    const error = await response.json();
+                    throw new Error(error.error || 'Conversion failed');
                 }
             } catch (error) {
-                alert('Error processing files: ' + error.message);
+                console.log('🔴 DEBUG: Error occurred:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: var(--danger); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Conversion Error</h3>
+                        <p>${error.message}</p>
+                        <p style="font-size: 0.9em; margin-top: 1rem;">
+                            Make sure you're uploading valid image files and the backend is running.
+                        </p>
+                    </div>
+                `;
             } finally {
-                processBtn.disabled = false;
-                processBtn.innerHTML = '<i class="fas fa-magic"></i> Process Files';
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Convert to PDF';
             }
         });
-
-        function resetTool() {
-            selectedFiles = [];
-            updateFileList();
-            result.style.display = 'none';
-            fileInput.value = '';
-        }
     </script>
 </body>
 </html>
