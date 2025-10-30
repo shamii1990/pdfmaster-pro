@@ -86,6 +86,7 @@
         });
 
         function handleFileSelect(e) {
+            console.log('🔴 DEBUG: Files selected', e.target.files);
             const files = Array.from(e.target.files).filter(file => 
                 file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
             );
@@ -122,15 +123,20 @@
 
             fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
             mergeBtn.style.display = selectedFiles.length >= 2 ? 'block' : 'none';
+            
+            console.log('🔴 DEBUG: File list updated', selectedFiles.length, 'files');
         }
 
         window.removeFile = function(index) {
+            console.log('🔴 DEBUG: Removing file at index', index);
             selectedFiles.splice(index, 1);
             updateFileList();
         }
 
         // REAL MERGE FUNCTION
         mergeBtn.addEventListener('click', async function() {
+            console.log('🔴 DEBUG: Merge button clicked - starting process');
+            
             if (selectedFiles.length < 2) {
                 alert('Please select at least 2 PDF files.');
                 return;
@@ -138,6 +144,8 @@
 
             const formData = new FormData();
             selectedFiles.forEach(file => formData.append('files', file));
+
+            console.log('🔴 DEBUG: FormData created with', selectedFiles.length, 'files');
 
             // Show loading
             resultDiv.innerHTML = `
@@ -148,13 +156,20 @@
             `;
 
             try {
+                console.log('🔴 DEBUG: About to call API /api/merge-pdf');
+                
                 const response = await fetch('/api/merge-pdf', {
                     method: 'POST',
                     body: formData
                 });
 
+                console.log('🔴 DEBUG: API response received', response.status, response.statusText);
+
                 if (response.ok) {
+                    console.log('🔴 DEBUG: Response OK - processing PDF blob');
                     const blob = await response.blob();
+                    console.log('🔴 DEBUG: Blob created', blob.size, 'bytes');
+                    
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -170,11 +185,14 @@
                             <p>Your PDF files have been merged and downloaded</p>
                         </div>
                     `;
+                    console.log('🔴 DEBUG: Merge completed successfully');
                 } else {
+                    console.log('🔴 DEBUG: Response not OK', response.status);
                     const error = await response.json();
                     throw new Error(error.error || 'Merge failed');
                 }
             } catch (error) {
+                console.log('🔴 DEBUG: Error occurred:', error);
                 resultDiv.innerHTML = `
                     <div style="background: var(--danger); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
                         <i class="fas fa-exclamation-triangle"></i>
