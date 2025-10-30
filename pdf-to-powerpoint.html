@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF to PowerPoint - PDFMaster Pro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">PDFMaster Pro</a>
+        </nav>
+    </header>
+
+    <section class="tool-hero">
+        <h1><i class="fas fa-file-powerpoint"></i> PDF to PowerPoint</h1>
+        <p>Convert PDF to PowerPoint Presentation</p>
+    </section>
+
+    <section class="tool-container">
+        <div style="text-align: center;">
+            <input type="file" id="fileInput" accept=".pdf" style="margin: 20px 0;">
+            <br>
+            <button onclick="convertToPowerPoint()" class="btn btn-primary">Convert to PowerPoint</button>
+            <div id="result" style="margin-top: 20px;"></div>
+        </div>
+    </section>
+
+    <script>
+        async function convertToPowerPoint() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                resultDiv.innerHTML = '<p>Converting... Please wait.</p>';
+                
+                const response = await fetch('/api/pdf-to-powerpoint', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = \
+                        <div style="background: #10b981; color: white; padding: 20px; border-radius: 10px;">
+                            <h3>✅ Success!</h3>
+                            <p>\</p>
+                            <a href="\" class="btn" style="background: white; color: #10b981;">Download PowerPoint</a>
+                        </div>
+                    \;
+                } else {
+                    resultDiv.innerHTML = '<div style="background: #ef4444; color: white; padding: 10px; border-radius: 5px;">Error: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div style="background: #ef4444; color: white; padding: 10px; border-radius: 5px;">Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

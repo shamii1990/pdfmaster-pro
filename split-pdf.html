@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split PDF - Free PDF Splitter Online | PDFMaster Pro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-crown"></i> PDFMaster Pro
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#all-tools">All Tools</a></li>
+                <li><a href="/merge-pdf" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Free Tools
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="tool-hero">
+        <div class="tool-hero-content">
+            <h1><i class="fas fa-cut"></i> Split PDF</h1>
+            <p>Split PDF documents into individual pages for free</p>
+        </div>
+    </section>
+
+    <section class="tool-container">
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-scissors"></i>
+            <h3>Select PDF File to Split</h3>
+            <p>Choose a PDF file to split into individual pages</p>
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
+                <i class="fas fa-folder-open"></i> Select PDF File
+            </button>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                Select one PDF file • 100MB maximum
+            </p>
+        </div>
+
+        <div class="file-list" id="fileList" style="display: none;">
+            <h3>Selected File:</h3>
+            <div id="filesContainer"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-primary" id="splitBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
+                <i class="fas fa-cut"></i> Split PDF
+            </button>
+        </div>
+
+        <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
+            <h3><i class="fas fa-check-circle"></i> Success!</h3>
+            <p id="resultMessage"></p>
+            <div id="downloadLinks" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div style="margin-top: 3rem; text-align: center;">
+            <h3>How to Split PDF</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="background: #6366f1; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">1</div>
+                    <p>Select PDF file</p>
+                </div>
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="background: #6366f1; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">2</div>
+                    <p>Click Split PDF</p>
+                </div>
+                <div style="padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="background: #6366f1; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">3</div>
+                    <p>Download all pages</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Get elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const filesContainer = document.getElementById('filesContainer');
+        const splitBtn = document.getElementById('splitBtn');
+        const result = document.getElementById('result');
+        const resultMessage = document.getElementById('resultMessage');
+        const downloadLinks = document.getElementById('downloadLinks');
+
+        // Store selected file
+        let selectedFile = null;
+
+        // File input change handler
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        });
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#6366f1';
+            uploadArea.style.background = '#f8fafc';
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = 'white';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = 'white';
+            
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        // Handle selected files
+        function handleFiles(files) {
+            if (files.length === 0) return;
+
+            const file = files[0];
+            
+            // Check if PDF
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            selectedFile = file;
+            updateFileList();
+        }
+
+        // Update file list display
+        function updateFileList() {
+            filesContainer.innerHTML = '';
+            
+            if (selectedFile) {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item';
+                fileElement.innerHTML = \
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                        <span style="flex: 1;">\</span>
+                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
+                    </div>
+                    <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                \;
+                filesContainer.appendChild(fileElement);
+            }
+
+            // Show/hide file list and split button
+            fileList.style.display = selectedFile ? 'block' : 'none';
+            splitBtn.style.display = selectedFile ? 'block' : 'none';
+        }
+
+        // Remove file function
+        window.removeFile = function() {
+            selectedFile = null;
+            updateFileList();
+            fileInput.value = '';
+        }
+
+        // Split button click handler
+        splitBtn.addEventListener('click', async function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file to split.');
+                return;
+            }
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Show loading state
+            splitBtn.disabled = true;
+            splitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Splitting...';
+
+            try {
+                console.log('Sending split request...');
+                
+                const response = await fetch('/api/split', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response received:', response.status);
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    // Show success message
+                    resultMessage.textContent = data.message;
+                    
+                    // Create download links for all pages
+                    downloadLinks.innerHTML = '';
+                    if (data.files && data.files.length > 0) {
+                        data.files.forEach(file => {
+                            const link = document.createElement('a');
+                            link.href = file.downloadUrl;
+                            link.className = 'btn';
+                            link.style.background = 'white';
+                            link.style.color = '#10b981';
+                            link.style.margin = '5px';
+                            link.style.padding = '10px 15px';
+                            link.innerHTML = \<i class="fas fa-download"></i> Page \\;
+                            downloadLinks.appendChild(link);
+                        });
+                    }
+                    
+                    result.style.display = 'block';
+                    
+                    // Clear file
+                    selectedFile = null;
+                    updateFileList();
+                    fileInput.value = '';
+                    
+                    // Scroll to result
+                    result.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Split error:', error);
+                alert('Error splitting PDF: ' + error.message);
+            } finally {
+                // Reset button
+                splitBtn.disabled = false;
+                splitBtn.innerHTML = '<i class="fas fa-cut"></i> Split PDF';
+            }
+        });
+
+        // Reset tool function
+        window.resetTool = function() {
+            selectedFile = null;
+            updateFileList();
+            result.style.display = 'none';
+            fileInput.value = '';
+            downloadLinks.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

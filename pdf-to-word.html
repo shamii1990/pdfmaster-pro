@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word - Convert PDF to Editable Word | PDFMaster Pro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-crown"></i> PDFMaster Pro
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#all-tools">All Tools</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="tool-hero">
+        <div class="tool-hero-content">
+            <h1><i class="fas fa-file-word"></i> PDF to Word</h1>
+            <p>Convert PDF files to editable Word documents for free</p>
+        </div>
+    </section>
+
+    <section class="tool-container">
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-file-export"></i>
+            <h3>Select PDF File to Convert</h3>
+            <p>Choose a PDF file to convert to Word format</p>
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
+                <i class="fas fa-folder-open"></i> Select PDF File
+            </button>
+        </div>
+
+        <div class="file-list" id="fileList" style="display: none;">
+            <h3>Selected File:</h3>
+            <div id="filesContainer"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-primary" id="convertBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
+                <i class="fas fa-sync-alt"></i> Convert to Word
+            </button>
+        </div>
+
+        <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
+            <h3><i class="fas fa-check-circle"></i> Success!</h3>
+            <p id="resultMessage"></p>
+            <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; margin-top: 1rem;">
+                <i class="fas fa-download"></i> Download Word Document
+            </a>
+        </div>
+    </section>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const filesContainer = document.getElementById('filesContainer');
+        const convertBtn = document.getElementById('convertBtn');
+        const result = document.getElementById('result');
+        const resultMessage = document.getElementById('resultMessage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            selectedFile = file;
+            updateFileList();
+        }
+
+        function updateFileList() {
+            filesContainer.innerHTML = '';
+            
+            if (selectedFile) {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item';
+                fileElement.innerHTML = \
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                        <span style="flex: 1;">\</span>
+                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
+                    </div>
+                    <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                \;
+                filesContainer.appendChild(fileElement);
+            }
+
+            fileList.style.display = selectedFile ? 'block' : 'none';
+            convertBtn.style.display = selectedFile ? 'block' : 'none';
+        }
+
+        window.removeFile = function() {
+            selectedFile = null;
+            updateFileList();
+            fileInput.value = '';
+        }
+
+        convertBtn.addEventListener('click', async function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file to convert.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
+
+            try {
+                const response = await fetch('/api/pdf-to-word', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultMessage.textContent = data.message;
+                    downloadLink.href = data.downloadUrl;
+                    result.style.display = 'block';
+                    
+                    selectedFile = null;
+                    updateFileList();
+                    fileInput.value = '';
+                    
+                    result.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error converting file: ' + error.message);
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Convert to Word';
+            }
+        });
+
+        window.resetTool = function() {
+            selectedFile = null;
+            updateFileList();
+            result.style.display = 'none';
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>

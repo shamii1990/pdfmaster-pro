@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TOOL_NAME}} - Free Online Tool | PDFMaster Pro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Premium Glass Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-crown"></i> PDFMaster Pro
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#all-tools">All Tools</a></li>
+                <li><a href="/merge-pdf" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Free Tools
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Tool Hero -->
+    <section class="tool-hero">
+        <div class="tool-hero-content">
+            <h1><i class="{{TOOL_ICON}}"></i> {{TOOL_NAME}}</h1>
+            <p>{{TOOL_DESCRIPTION}}</p>
+        </div>
+    </section>
+
+    <!-- Main Tool Interface -->
+    <section class="tool-container">
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt floating"></i>
+            <h3>Drag & Drop Your Files</h3>
+            <p>Select files or drag them here to process</p>
+            <input type="file" id="fileInput" {{FILE_ATTRIBUTES}} style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
+                <i class="fas fa-folder-open"></i> Choose Files
+            </button>
+            <p style="margin-top: 1.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.8);">
+                <i class="fas fa-lock"></i> 100% Free • Files processed securely • Auto-deleted
+            </p>
+        </div>
+
+        <!-- File List -->
+        <div class="file-list" id="fileList" style="display: none;">
+            <h3 style="color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-list"></i> Selected Files
+            </h3>
+            <div id="filesContainer"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn btn-primary" id="processBtn" style="display: none; font-size: 1.2rem; padding: 18px 40px;">
+                <i class="fas fa-magic"></i> Process Files
+            </button>
+        </div>
+
+        <!-- Result -->
+        <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 3rem; background: var(--gradient-accent); color: white; border-radius: 20px; box-shadow: var(--shadow-xl);" class="success-result">
+            <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">Success! 🎉</h3>
+            <p id="resultMessage" style="font-size: 1.1rem; margin-bottom: 2rem;"></p>
+            <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; font-size: 1.1rem; padding: 15px 35px;">
+                <i class="fas fa-download"></i> Download Result
+            </a>
+            <div style="margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="resetTool()" style="margin-right: 1rem;">
+                    <i class="fas fa-redo"></i> Process More Files
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div style="margin-top: 4rem; text-align: center;">
+            <h3 style="color: var(--text-dark); margin-bottom: 2rem; font-size: 1.5rem;">Why Choose PDFMaster Pro?</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div style="padding: 2rem; background: white; border-radius: 15px; box-shadow: var(--shadow);">
+                    <i class="fas fa-bolt" style="font-size: 2.5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                    <h4>Lightning Fast</h4>
+                    <p>Process files in seconds</p>
+                </div>
+                <div style="padding: 2rem; background: white; border-radius: 15px; box-shadow: var(--shadow);">
+                    <i class="fas fa-lock" style="font-size: 2.5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                    <h4>100% Secure</h4>
+                    <p>Files auto-deleted after processing</p>
+                </div>
+                <div style="padding: 2rem; background: white; border-radius: 15px; box-shadow: var(--shadow);">
+                    <i class="fas fa-gem" style="font-size: 2.5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                    <h4>High Quality</h4>
+                    <p>Best output quality guaranteed</p>
+                </div>
+                <div style="padding: 2rem; background: white; border-radius: 15px; box-shadow: var(--shadow);">
+                    <i class="fas fa-heart" style="font-size: 2.5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                    <h4>Completely Free</h4>
+                    <p>No hidden fees, no watermarks</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const filesContainer = document.getElementById('filesContainer');
+        const processBtn = document.getElementById('processBtn');
+        const result = document.getElementById('result');
+        const resultMessage = document.getElementById('resultMessage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        let selectedFiles = [];
+
+        // Enhanced Drag and Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            updateFileList();
+        }
+
+        function updateFileList() {
+            filesContainer.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = \
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-file" style="color: #667eea; font-size: 1.5rem;"></i>
+                        <div>
+                            <div style="font-weight: 600;">\</div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">\ MB</div>
+                        </div>
+                    </div>
+                    <button onclick="removeFile(\)" class="btn" style="background: var(--gradient-secondary); color: white; padding: 8px 12px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                \;
+                filesContainer.appendChild(fileItem);
+            });
+
+            fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+            processBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function resetTool() {
+            selectedFiles = [];
+            updateFileList();
+            result.style.display = 'none';
+            fileInput.value = '';
+        }
+
+        processBtn.addEventListener('click', async function() {
+            if (selectedFiles.length === 0) {
+                alert('Please select files to process.');
+                return;
+            }
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const response = await fetch('{{API_ENDPOINT}}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultMessage.textContent = data.message;
+                    if (data.downloadUrl) {
+                        downloadLink.href = data.downloadUrl;
+                        downloadLink.style.display = 'inline-block';
+                    } else {
+                        downloadLink.style.display = 'none';
+                    }
+                    result.style.display = 'block';
+                    
+                    // Scroll to result
+                    result.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error processing files: ' + error.message);
+            } finally {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-magic"></i> Process Files';
+            }
+        });
+    </script>
+</body>
+</html>

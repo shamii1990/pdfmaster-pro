@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign PDF - PDFMaster Pro</title>
+    <meta name="description" content="Add digital signature to PDF. 100% free online tool.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-crown"></i> PDFMaster Pro
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#all-tools">All Tools</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="tool-hero">
+        <div class="tool-hero-content">
+            <h1><i class="fas fa-signature"></i> Sign PDF</h1>
+            <p>Add digital signature to PDF</p>
+        </div>
+    </section>
+
+    <section class="tool-container">
+        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-signature" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h3>Select Your Files</h3>
+                <p>Choose files to process with Sign PDF</p>
+                <input type="file" id="fileInput" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
+                    <i class="fas fa-folder-open"></i> Choose Files
+                </button>
+            </div>
+
+            <div id="fileList" style="display: none; margin-top: 2rem;">
+                <h3>Selected Files:</h3>
+                <div id="filesContainer"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn btn-primary" id="processBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
+                    <i class="fas fa-magic"></i> Process Files
+                </button>
+            </div>
+
+            <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
+                <h3><i class="fas fa-check-circle"></i> Success!</h3>
+                <p id="resultMessage"></p>
+                <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; margin-top: 1rem;">
+                    <i class="fas fa-download"></i> Download Result
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const filesContainer = document.getElementById('filesContainer');
+        const processBtn = document.getElementById('processBtn');
+        const result = document.getElementById('result');
+        const resultMessage = document.getElementById('resultMessage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        let selectedFiles = [];
+
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            updateFileList();
+        }
+
+        function updateFileList() {
+            filesContainer.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item';
+                fileElement.innerHTML = \
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; margin: 5px 0;">
+                        <i class="fas fa-file" style="color: #667eea;"></i>
+                        <span style="flex: 1;">\</span>
+                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
+                        <button onclick="removeFile(\)" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                \;
+                filesContainer.appendChild(fileElement);
+            });
+
+            fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+            processBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        processBtn.addEventListener('click', async function() {
+            if (selectedFiles.length === 0) {
+                alert('Please select files to process.');
+                return;
+            }
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const response = await fetch('/api/sign-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultMessage.textContent = data.message;
+                    downloadLink.href = data.downloadUrl;
+                    result.style.display = 'block';
+                    
+                    selectedFiles = [];
+                    updateFileList();
+                    fileInput.value = '';
+                    
+                    result.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error processing files: ' + error.message);
+            } finally {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-magic"></i> Process Files';
+            }
+        });
+
+        function resetTool() {
+            selectedFiles = [];
+            updateFileList();
+            result.style.display = 'none';
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>
