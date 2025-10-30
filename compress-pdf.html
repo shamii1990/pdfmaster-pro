@@ -1,22 +1,26 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compress PDF - Reduce PDF File Size | PDFMaster Pro</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
         <nav class="navbar">
-            <a href="/" class="logo">
+            <a href="index.html" class="logo">
                 <i class="fas fa-crown"></i> PDFMaster Pro
             </a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/#all-tools">All Tools</a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="merge-pdf.html">Merge PDF</a>
+                <a href="split-pdf.html">Split PDF</a>
+                <a href="compress-pdf.html" class="active">Compress PDF</a>
+                <a href="pdf-to-text.html">PDF to Text</a>
+                <a href="images-to-pdf.html">Images to PDF</a>
+            </div>
         </nav>
     </header>
 
@@ -37,7 +41,7 @@
                 <i class="fas fa-folder-open"></i> Select PDF File
             </button>
             <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                Select one PDF file • 100MB maximum
+                Select one PDF file • 50MB maximum
             </p>
         </div>
 
@@ -52,13 +56,7 @@
             </button>
         </div>
 
-        <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
-            <h3><i class="fas fa-check-circle"></i> Success!</h3>
-            <p id="resultMessage"></p>
-            <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; margin-top: 1rem;">
-                <i class="fas fa-download"></i> Download Compressed PDF
-            </a>
-        </div>
+        <div id="result" style="margin-top: 2rem;"></div>
 
         <div style="margin-top: 3rem; text-align: center;">
             <h3>How PDF Compression Works</h3>
@@ -88,9 +86,7 @@
         const fileList = document.getElementById('fileList');
         const filesContainer = document.getElementById('filesContainer');
         const compressBtn = document.getElementById('compressBtn');
-        const result = document.getElementById('result');
-        const resultMessage = document.getElementById('resultMessage');
-        const downloadLink = document.getElementById('downloadLink');
+        const resultDiv = document.getElementById('result');
 
         let selectedFile = null;
 
@@ -141,16 +137,18 @@
             if (selectedFile) {
                 const fileElement = document.createElement('div');
                 fileElement.className = 'file-item';
-                fileElement.innerHTML = \
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
-                        <span style="flex: 1;">\</span>
-                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
+                fileElement.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 10px; margin-bottom: 0.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                            <span>${selectedFile.name}</span>
+                            <span style="color: #666; font-size: 0.9em;">(${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        </div>
+                        <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <button onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                \;
+                `;
                 filesContainer.appendChild(fileElement);
             }
 
@@ -164,7 +162,10 @@
             fileInput.value = '';
         }
 
+        // REAL COMPRESS FUNCTION
         compressBtn.addEventListener('click', async function() {
+            console.log('🔴 DEBUG: Compress button clicked');
+            
             if (!selectedFile) {
                 alert('Please select a PDF file to compress.');
                 return;
@@ -173,54 +174,92 @@
             const formData = new FormData();
             formData.append('file', selectedFile);
 
+            // Show loading
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+                    <p>Compressing PDF file...</p>
+                </div>
+            `;
+
             compressBtn.disabled = true;
             compressBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Compressing...';
 
             try {
-                console.log('Sending compress request...');
+                console.log('🔴 DEBUG: About to call API /api/compress-pdf');
                 
-                const response = await fetch('/api/compress', {
+                const response = await fetch('/api/compress-pdf', {
                     method: 'POST',
                     body: formData
                 });
 
-                console.log('Response status:', response.status);
+                console.log('🔴 DEBUG: API response received', response.status, response.statusText);
 
-                if (!response.ok) {
-                    throw new Error('Server error: ' + response.status);
-                }
-
-                const data = await response.json();
-                console.log('Response data:', data);
-
-                if (data.success) {
-                    resultMessage.textContent = data.message;
-                    downloadLink.href = data.downloadUrl;
-                    result.style.display = 'block';
+                if (response.ok) {
+                    console.log('🔴 DEBUG: Response OK - processing PDF blob');
                     
+                    // Get compression stats from headers
+                    const originalSize = response.headers.get('X-Original-Size');
+                    const compressedSize = response.headers.get('X-Compressed-Size');
+                    const compressionRatio = response.headers.get('X-Compression-Ratio');
+                    
+                    const blob = await response.blob();
+                    console.log('🔴 DEBUG: Blob created', blob.size, 'bytes');
+                    
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'compressed-document.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Show success message with compression stats
+                    let statsHtml = '';
+                    if (originalSize && compressedSize) {
+                        const originalMB = (originalSize / 1024 / 1024).toFixed(2);
+                        const compressedMB = (compressedSize / 1024 / 1024).toFixed(2);
+                        statsHtml = `
+                            <p><strong>Original Size:</strong> ${originalMB} MB</p>
+                            <p><strong>Compressed Size:</strong> ${compressedMB} MB</p>
+                            <p><strong>Reduction:</strong> ${compressionRatio || '0'}%</p>
+                        `;
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <div style="background: var(--gradient-accent); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Success!</h3>
+                            <p>Your PDF file has been compressed and downloaded</p>
+                            ${statsHtml}
+                        </div>
+                    `;
+                    
+                    console.log('🔴 DEBUG: Compression completed successfully');
+                    
+                    // Reset form
                     selectedFile = null;
                     updateFileList();
                     fileInput.value = '';
-                    
-                    result.scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    alert('Error: ' + (data.error || 'Unknown error'));
+                    console.log('🔴 DEBUG: Response not OK', response.status);
+                    const error = await response.json();
+                    throw new Error(error.error || 'Compression failed');
                 }
             } catch (error) {
-                console.error('Compress error:', error);
-                alert('Error compressing PDF: ' + error.message + '\\n\\nMake sure the compress API is working on the server.');
+                console.log('🔴 DEBUG: Error occurred:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: var(--danger); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             } finally {
                 compressBtn.disabled = false;
                 compressBtn.innerHTML = '<i class="fas fa-compress-alt"></i> Compress PDF';
             }
         });
-
-        window.resetTool = function() {
-            selectedFile = null;
-            updateFileList();
-            result.style.display = 'none';
-            fileInput.value = '';
-        }
     </script>
 </body>
 </html>
