@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCR PDF - PDFMaster Pro</title>
-    <meta name="description" content="OCR PDF to make text searchable. 100% free online tool.">
+    <meta name="description" content="OCR PDF to make text searchable and extract text. 100% free online tool.">
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -14,49 +14,181 @@
             <a href="/" class="logo">
                 <i class="fas fa-crown"></i> PDFMaster Pro
             </a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/#all-tools">All Tools</a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="merge-pdf.html">Merge PDF</a>
+                <a href="split-pdf.html">Split PDF</a>
+                <a href="compress-pdf.html">Compress PDF</a>
+                <a href="pdf-to-text.html">PDF to Text</a>
+                <a href="images-to-pdf.html">Images to PDF</a>
+                <a href="jpg-to-pdf.html">JPG to PDF</a>
+                <a href="pdf-to-jpg.html">PDF to JPG</a>
+                <a href="ocr-pdf.html" class="active">OCR PDF</a>
+            </div>
         </nav>
     </header>
 
     <section class="tool-hero">
         <div class="tool-hero-content">
             <h1><i class="fas fa-eye"></i> OCR PDF</h1>
-            <p>OCR PDF to make text searchable</p>
+            <p>Make scanned PDFs searchable and extract text with Optical Character Recognition</p>
+            <div class="tool-features">
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Text Recognition</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-search"></i>
+                    <span>Make Searchable</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Text Extraction</span>
+                </div>
+            </div>
         </div>
     </section>
 
     <section class="tool-container">
-        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+        <div class="converter-box">
             <div class="upload-area" id="uploadArea">
-                <i class="fas fa-eye" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <h3>Select Your Files</h3>
-                <p>Choose files to process with OCR PDF</p>
-                <input type="file" id="fileInput" style="display: none;">
+                <i class="fas fa-file-search" style="font-size: 4rem; color: #667eea; margin-bottom: 1rem;"></i>
+                <h3>Upload PDF for OCR</h3>
+                <p>Drag & drop your scanned PDF or click to browse</p>
+                <p class="file-info">Supports: PDF files up to 50MB</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
                 <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="margin-top: 1.5rem;">
-                    <i class="fas fa-folder-open"></i> Choose Files
+                    <i class="fas fa-folder-open"></i> Choose PDF File
                 </button>
             </div>
 
-            <div id="fileList" style="display: none; margin-top: 2rem;">
-                <h3>Selected Files:</h3>
-                <div id="filesContainer"></div>
+            <div id="fileInfo" style="display: none; margin-top: 2rem; text-align: center;">
+                <div class="file-preview">
+                    <i class="fas fa-file-pdf" style="font-size: 3rem; color: #667eea;"></i>
+                    <div class="file-details">
+                        <h4 id="fileName"></h4>
+                        <p id="fileSize"></p>
+                        <p id="pageCount"></p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetTool()" style="margin-left: 1rem;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="processing-options" style="text-align: center; margin: 2rem 0;">
+                <label style="display: block; margin-bottom: 1rem; font-weight: bold;">Processing Mode:</label>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <label class="option-card">
+                        <input type="radio" name="processingMode" value="ocr" checked>
+                        <div class="option-content">
+                            <i class="fas fa-search"></i>
+                            <span>Make Searchable PDF</span>
+                            <small>Add text layer to scanned PDF</small>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="processingMode" value="extract">
+                        <div class="option-content">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Extract Text Only</span>
+                            <small>Get raw text content</small>
+                        </div>
+                    </label>
+                </div>
             </div>
 
             <div style="text-align: center; margin-top: 2rem;">
                 <button class="btn btn-primary" id="processBtn" style="display: none; font-size: 1.2rem; padding: 15px 30px;">
-                    <i class="fas fa-magic"></i> Process Files
+                    <i class="fas fa-eye"></i> Process OCR
                 </button>
             </div>
 
-            <div id="result" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #10b981; color: white; border-radius: 10px;">
-                <h3><i class="fas fa-check-circle"></i> Success!</h3>
-                <p id="resultMessage"></p>
-                <a href="#" id="downloadLink" class="btn" style="background: white; color: #10b981; margin-top: 1rem;">
-                    <i class="fas fa-download"></i> Download Result
-                </a>
+            <div id="progress" style="display: none; text-align: center; margin-top: 2rem;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p id="progressText">Initializing OCR engine...</p>
+                <div id="pageProgress" style="margin-top: 1rem;"></div>
+            </div>
+
+            <div id="result" style="display: none; text-align: center; margin-top: 2rem;">
+                <div class="success-card">
+                    <h3><i class="fas fa-check-circle"></i> OCR Processing Complete!</h3>
+                    <div id="resultSummary" style="margin: 1.5rem 0;"></div>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="#" id="downloadPdfLink" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download Searchable PDF
+                        </a>
+                        <button class="btn btn-secondary" onclick="showTextContent()">
+                            <i class="fas fa-file-alt"></i> View Extracted Text
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetTool()">
+                            <i class="fas fa-redo"></i> Process Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="textContent" style="display: none; margin-top: 2rem; text-align: left;">
+                <div class="text-preview">
+                    <h4><i class="fas fa-file-alt"></i> Extracted Text Content</h4>
+                    <textarea id="extractedText" readonly style="width: 100%; height: 300px; padding: 1rem; border: 1px solid #ddd; border-radius: 5px; font-family: monospace; resize: vertical;"></textarea>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-secondary" onclick="copyText()">
+                            <i class="fas fa-copy"></i> Copy Text
+                        </button>
+                        <button class="btn btn-secondary" onclick="hideTextContent()">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #ef4444; color: white; border-radius: 10px;">
+                <h3><i class="fas fa-exclamation-triangle"></i> OCR Processing Failed</h3>
+                <p id="errorMessage"></p>
+                <button class="btn" onclick="resetTool()" style="background: white; color: #ef4444; margin-top: 1rem;">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        </div>
+
+        <div class="tool-info">
+            <h3>How OCR PDF Works</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Upload PDF</h4>
+                        <p>Select your scanned PDF or image-based PDF</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>OCR Processing</h4>
+                        <p>AI analyzes text and recognizes characters</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Get Results</h4>
+                        <p>Download searchable PDF or extracted text</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips">
+                <h4>Tips for Best OCR Results:</h4>
+                <ul>
+                    <li>Use high-quality scans (300+ DPI)</li>
+                    <li>Ensure good contrast between text and background</li>
+                    <li>Use clear, standard fonts</li>
+                    <li>Avoid handwritten text for better accuracy</li>
+                    <li>Check text alignment and rotation</li>
+                </ul>
             </div>
         </div>
     </section>
@@ -64,101 +196,342 @@
     <script>
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
-        const fileList = document.getElementById('fileList');
-        const filesContainer = document.getElementById('filesContainer');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const pageCount = document.getElementById('pageCount');
         const processBtn = document.getElementById('processBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const pageProgress = document.getElementById('pageProgress');
         const result = document.getElementById('result');
-        const resultMessage = document.getElementById('resultMessage');
-        const downloadLink = document.getElementById('downloadLink');
+        const resultSummary = document.getElementById('resultSummary');
+        const downloadPdfLink = document.getElementById('downloadPdfLink');
+        const textContent = document.getElementById('textContent');
+        const extractedText = document.getElementById('extractedText');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
 
-        let selectedFiles = [];
+        let currentFile = null;
+        let currentResult = null;
 
+        // File input change handler
         fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            handleFiles(files);
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
         });
 
-        function handleFiles(files) {
-            selectedFiles = Array.from(files);
-            updateFileList();
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f8f9fa';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                handleFile(file);
+            } else {
+                alert('Please drop a PDF file');
+            }
+        });
+
+        function handleFile(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            currentFile = file;
+            
+            // Update file info
+            fileName.textContent = file.name;
+            fileSize.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            pageCount.textContent = 'Pages: Will be detected during processing';
+            
+            // Show file info and process button
+            fileInfo.style.display = 'block';
+            processBtn.style.display = 'block';
+            
+            // Hide other sections
+            result.style.display = 'none';
+            textContent.style.display = 'none';
+            error.style.display = 'none';
         }
 
-        function updateFileList() {
-            filesContainer.innerHTML = '';
-            selectedFiles.forEach((file, index) => {
-                const fileElement = document.createElement('div');
-                fileElement.className = 'file-item';
-                fileElement.innerHTML = \
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; margin: 5px 0;">
-                        <i class="fas fa-file" style="color: #667eea;"></i>
-                        <span style="flex: 1;">\</span>
-                        <span style="color: #666; font-size: 0.9em;">(\ MB)</span>
-                        <button onclick="removeFile(\)" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                \;
-                filesContainer.appendChild(fileElement);
-            });
-
-            fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
-            processBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
-        }
-
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
-        }
-
+        // Process button click handler
         processBtn.addEventListener('click', async function() {
-            if (selectedFiles.length === 0) {
-                alert('Please select files to process.');
+            if (!currentFile) {
+                alert('Please select a PDF file first.');
                 return;
             }
 
             const formData = new FormData();
-            selectedFiles.forEach(file => {
-                formData.append('files', file);
-            });
+            formData.append('file', currentFile);
 
-            processBtn.disabled = true;
-            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            const processingMode = document.querySelector('input[name="processingMode"]:checked').value;
+            const endpoint = processingMode === 'ocr' ? '/api/ocr-pdf' : '/api/extract-text';
+
+            // UI updates
+            processBtn.style.display = 'none';
+            progress.style.display = 'block';
+            updateProgress(10, 'Uploading file...');
 
             try {
-                const response = await fetch('/api/ocr-pdf', {
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
 
                 const data = await response.json();
 
+                if (!response.ok) {
+                    throw new Error(data.error || 'Processing failed');
+                }
+
                 if (data.success) {
-                    resultMessage.textContent = data.message;
-                    downloadLink.href = data.downloadUrl;
+                    currentResult = data;
+                    
+                    // Show success results
+                    progress.style.display = 'none';
                     result.style.display = 'block';
                     
-                    selectedFiles = [];
-                    updateFileList();
-                    fileInput.value = '';
+                    if (processingMode === 'ocr') {
+                        resultSummary.innerHTML = `
+                            <p><strong>${data.summary.pagesWithText}/${data.summary.totalPages}</strong> pages contain text</p>
+                            <p>Average confidence: <strong>${data.summary.averageConfidence}%</strong></p>
+                            <p>Total text characters: <strong>${data.summary.totalTextLength.toLocaleString()}</strong></p>
+                        `;
+                        downloadPdfLink.href = data.downloadUrl;
+                        downloadPdfLink.download = data.filename;
+                        extractedText.value = data.textContent;
+                    } else {
+                        resultSummary.innerHTML = `
+                            <p><strong>${data.summary.totalPages}</strong> pages processed</p>
+                            <p>Total words: <strong>${data.summary.totalWords.toLocaleString()}</strong></p>
+                            <p>Estimated accuracy: <strong>${data.summary.estimatedAccuracy}</strong></p>
+                        `;
+                        downloadPdfLink.style.display = 'none';
+                        extractedText.value = data.text;
+                    }
                     
-                    result.scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    alert('Error: ' + data.error);
+                    throw new Error(data.error || 'Processing failed');
                 }
+
             } catch (error) {
-                alert('Error processing files: ' + error.message);
-            } finally {
-                processBtn.disabled = false;
-                processBtn.innerHTML = '<i class="fas fa-magic"></i> Process Files';
+                console.error('OCR error:', error);
+                progress.style.display = 'none';
+                error.style.display = 'block';
+                errorMessage.textContent = error.message || 'OCR processing failed. Please try again.';
             }
         });
 
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        function showTextContent() {
+            textContent.style.display = 'block';
+            textContent.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideTextContent() {
+            textContent.style.display = 'none';
+        }
+
+        function copyText() {
+            extractedText.select();
+            document.execCommand('copy');
+            alert('Text copied to clipboard!');
+        }
+
         function resetTool() {
-            selectedFiles = [];
-            updateFileList();
-            result.style.display = 'none';
+            currentFile = null;
+            currentResult = null;
             fileInput.value = '';
+            fileInfo.style.display = 'none';
+            processBtn.style.display = 'none';
+            progress.style.display = 'none';
+            result.style.display = 'none';
+            textContent.style.display = 'none';
+            error.style.display = 'none';
         }
     </script>
+
+    <style>
+        .file-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+        }
+
+        .file-details {
+            text-align: left;
+        }
+
+        .file-details h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .file-details p {
+            margin: 0.25rem 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .option-card {
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .option-card:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .option-card input[type="radio"] {
+            display: none;
+        }
+
+        .option-card input[type="radio"]:checked + .option-content {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option-content {
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .option-content i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .option-content span {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-content small {
+            opacity: 0.8;
+        }
+
+        .success-card {
+            background: #10b981;
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        .text-preview {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .tool-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .tips {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .tips ul {
+            text-align: left;
+            margin-top: 1rem;
+        }
+
+        .tips li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </body>
 </html>
