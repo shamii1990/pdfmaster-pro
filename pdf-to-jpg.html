@@ -139,6 +139,7 @@
     </section>
 
     <script>
+        // Get DOM elements
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
         const fileInfo = document.getElementById('fileInfo');
@@ -169,25 +170,37 @@
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.style.background = '#f8f9fa';
+            uploadArea.style.borderColor = '#667eea';
         });
 
         uploadArea.addEventListener('dragleave', (e) => {
             e.preventDefault();
             uploadArea.style.background = '';
+            uploadArea.style.borderColor = '';
         });
 
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.style.background = '';
+            uploadArea.style.borderColor = '';
             const file = e.dataTransfer.files[0];
-            if (file && file.type === 'application/pdf') {
-                handleFile(file);
-            } else {
-                alert('Please drop a PDF file');
+            if (file) {
+                if (file.type === 'application/pdf') {
+                    handleFile(file);
+                } else {
+                    alert('Please drop a PDF file');
+                }
             }
         });
 
+        // Click on upload area to trigger file input
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
         function handleFile(file) {
+            console.log('File selected:', file.name);
+            
             if (file.type !== 'application/pdf') {
                 alert('Please select a PDF file');
                 return;
@@ -195,10 +208,10 @@
 
             currentFile = file;
             
-            // Update file info
+            // Update file info display
             fileName.textContent = file.name;
             fileSize.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-            pageCount.textContent = 'Pages: Analyzing...';
+            pageCount.textContent = 'Pages: Will be detected during conversion';
             
             // Show file info and process button
             fileInfo.style.display = 'block';
@@ -207,11 +220,9 @@
             // Hide other sections
             result.style.display = 'none';
             error.style.display = 'none';
+            progress.style.display = 'none';
             
-            // Estimate page count (this would be more accurate with actual PDF parsing)
-            setTimeout(() => {
-                pageCount.textContent = 'Pages: Will be detected during conversion';
-            }, 1000);
+            console.log('File info displayed, process button shown');
         }
 
         // Process button click handler
@@ -227,35 +238,51 @@
             // UI updates
             processBtn.style.display = 'none';
             progress.style.display = 'block';
-            updateProgress(0, 'Starting conversion...');
+            updateProgress(10, 'Uploading PDF file...');
 
             try {
+                console.log('Sending request to server...');
                 const response = await fetch('/api/pdf-to-jpg', {
                     method: 'POST',
                     body: formData
                 });
 
+                console.log('Response status:', response.status);
+
                 if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Server error: ${response.status}`);
                 }
 
                 // Get the zip file
                 const blob = await response.blob();
+                console.log('Received blob size:', blob.size);
+                
+                if (blob.size === 0) {
+                    throw new Error('Received empty response from server');
+                }
+
                 const url = URL.createObjectURL(blob);
-                const pagesProcessed = response.headers.get('X-Pages-Processed');
+                const pagesProcessed = response.headers.get('X-Pages-Processed') || 'all';
 
                 // Show success
                 progress.style.display = 'none';
                 result.style.display = 'block';
-                resultMessage.textContent = `Successfully converted ${pagesProcessed || 'all'} pages to JPG images`;
+                resultMessage.textContent = `Successfully converted ${pagesProcessed} pages to JPG images!`;
                 downloadLink.href = url;
-                downloadLink.download = currentFile.name.replace('.pdf', '') + '-converted.zip';
+                downloadLink.download = currentFile.name.replace('.pdf', '') + '-images.zip';
+
+                // Scroll to result
+                result.scrollIntoView({ behavior: 'smooth' });
 
             } catch (error) {
                 console.error('Conversion error:', error);
                 progress.style.display = 'none';
                 error.style.display = 'block';
-                errorMessage.textContent = error.message || 'Conversion failed. Please try again.';
+                errorMessage.textContent = error.message || 'Conversion failed. Please try with a different PDF file.';
+                
+                // Scroll to error
+                error.scrollIntoView({ behavior: 'smooth' });
             }
         });
 
@@ -272,7 +299,17 @@
             progress.style.display = 'none';
             result.style.display = 'none';
             error.style.display = 'none';
+            
+            // Reset upload area
+            uploadArea.style.background = '';
+            uploadArea.style.borderColor = '';
         }
+
+        // Initialize tool on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PDF to JPG tool initialized');
+            resetTool();
+        });
     </script>
 
     <style>
@@ -294,6 +331,7 @@
         .file-details h4 {
             margin: 0;
             color: #333;
+            word-break: break-all;
         }
 
         .file-details p {
@@ -350,6 +388,7 @@
             justify-content: center;
             gap: 2rem;
             margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .feature {
@@ -358,6 +397,41 @@
             gap: 0.5rem;
             color: #10b981;
             font-weight: 500;
+        }
+
+        .upload-area {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .tool-features {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .file-preview {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .file-details {
+                text-align: center;
+            }
         }
     </style>
 </body>
